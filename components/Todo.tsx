@@ -6,22 +6,26 @@ import { VerticalDivider } from "./Divider";
 import { Link } from "expo-router";
 
 interface TodoProps {
-  item: ITodo;
-  removeItem: (item: ITodo) => void;
+  todo: ITodo;
+  removeTodo: (todo: ITodo) => void;
+  checkedTodo: (todo: ITodo) => void;
 }
 
-export const Todo = ({ item, removeItem }: TodoProps) => {
+export const Todo = ({ todo, removeTodo, checkedTodo }: TodoProps) => {
   return (
     <View style={style.container}>
       {/* Content */}
       <View style={style.content}>
         <RadioButton
-          status={item.isDone ? "checked" : "unchecked"}
-          value={item.id}
+          onPress={() => {
+            checkedTodo(todo);
+          }}
+          status={todo.isDone ? "checked" : "unchecked"}
+          value={todo.id}
         />
         <View>
-          <Text style={style.title}>{item.title}</Text>
-          <Text style={style.description}>{item.descripsion}</Text>
+          <Text style={style.title}>{todo.title}</Text>
+          <Text style={style.description}>{todo.descripsion}</Text>
         </View>
       </View>
       {/* End Content */}
@@ -32,7 +36,7 @@ export const Todo = ({ item, removeItem }: TodoProps) => {
           href={{
             pathname: "/modal",
             params: {
-              id: item.id,
+              id: todo.id,
             },
           }}
           asChild
@@ -44,7 +48,7 @@ export const Todo = ({ item, removeItem }: TodoProps) => {
           iconColor={MD3Colors.error50}
           icon="delete"
           onPress={() => {
-            removeItem(item);
+            removeTodo(todo);
           }}
         />
       </View>

@@ -5,7 +5,7 @@ import { Dimensions, StyleSheet } from "react-native";
 export default function TabTodoScreen() {
   return (
     <View style={styles.container}>
-      <ListTodo />
+      <ListTodo isDoneView={true} />
     </View>
   );
 }

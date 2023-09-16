@@ -14,6 +14,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: MD3Colors.primary60,
       }}
     >
+      
       <Tabs.Screen
         name="index"
         options={{

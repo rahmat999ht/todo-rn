@@ -5,10 +5,10 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { SplashScreen, Stack } from "expo-router";
+import { SplashScreen, Stack, router, usePathname } from "expo-router";
 import { useEffect } from "react";
-import { useColorScheme, StyleSheet, Dimensions } from "react-native";
-import { FAB, PaperProvider, MD2Colors, MD3Colors } from "react-native-paper";
+import { useColorScheme, StyleSheet } from "react-native";
+import { FAB, PaperProvider } from "react-native-paper";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -49,6 +49,7 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const pathName = usePathname();
   const colors = colorScheme === "dark" ? DarkTheme : DefaultTheme;
 
   return (
@@ -57,28 +58,27 @@ function RootLayoutNav() {
         isV3: true,
         version: 3,
         dark: colorScheme === "dark",
-        // colors: {
-        //   primaryContainer: "#2f95dc",
-        // },
       }}
     >
       <ThemeProvider value={colors}>
         <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false,}} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen
             name="modal"
             options={{
               presentation: "modal",
-              title: "To Do",
-
+              title: "Create Todo",
             }}
           />
         </Stack>
         <FAB
+          visible={pathName !== "/modal"}
           icon="plus"
           style={styles.fab}
           mode="flat"
-          onPress={() => console.log("Pressed")}
+          onPress={() => {
+            router.push("/modal");
+          }}
         />
       </ThemeProvider>
     </PaperProvider>
