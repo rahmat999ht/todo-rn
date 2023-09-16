@@ -1,24 +1,11 @@
-// import { StatusBar } from "expo-status-bar";
-import { Pressable, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 
 import { Text, View } from "../components/Themed";
-import {
-  Stack,
-  router,
-  useLocalSearchParams,
-  useNavigation,
-} from "expo-router";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  Button,
-  Card,
-  Checkbox,
-  MD3Colors,
-  Switch,
-  TextInput,
-} from "react-native-paper";
-import { addTodo, updateTodo, useGetTodo } from "../services/todo";
+import { ActivityIndicator, MD3Colors, Snackbar } from "react-native-paper";
+import { useGetTodo } from "../services/todo";
+import { FormTodo } from "../components/FormTodo";
 
 export default function ModalScreen() {
   const params = useLocalSearchParams();
@@ -26,8 +13,9 @@ export default function ModalScreen() {
 
   const { id = "New" } = params;
 
-  const { data, isLoading, setLoading } = useGetTodo(id as string);
+  const { data, isLoading, setLoading, setData } = useGetTodo(id as string);
   const titleApp = id !== "New" ? "Todo Update" : "Todo New";
+  const titleSnackbar = id !== "New" ? "Berhasil Update" : "Berhasil Add";
 
   useEffect(() => {
     nav.setOptions({
@@ -35,110 +23,43 @@ export default function ModalScreen() {
     });
   }, []);
 
+  const [visible, setVisible] = useState(false);
+
+  const onToggleSnackBar = () => setVisible(!visible);
+
+  const onDismissSnackBar = () => setVisible(false);
+
   return (
     <View style={styles.container}>
       {isLoading ? (
         <ActivityIndicator animating={true} size={40} />
       ) : (
-        <FormTodo data={data} setLoading={setLoading} />
+        <FormTodo
+          data={data}
+          setLoading={setLoading}
+          setData={setData}
+          onToggleSnackBar={onToggleSnackBar}
+        />
       )}
+
+      <Snackbar
+        style={{
+          position: "absolute",
+          margin: 16,
+          right: 0,
+          left: 0,
+          bottom: 24,
+          width: "100%",
+          backgroundColor: MD3Colors.primary60,
+        }}
+        visible={visible}
+        onDismiss={onDismissSnackBar}
+      >
+        <Text style={{ fontWeight: "600", fontSize: 18 }}>{titleSnackbar}</Text>
+      </Snackbar>
     </View>
   );
 }
-
-import React from "react";
-import { ITodo } from "../types/Todo";
-
-const FormTodo = ({
-  data,
-  setLoading,
-}: {
-  data: ITodo;
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-}) => {
-  const buttonTitle = data.id !== "New" ? "Update" : "Add";
-  const [title, setTitle] = useState(data.title);
-  const [descripsion, setDescripsion] = useState(data.descripsion);
-  const [isDone, setIsDone] = useState(data.isDone);
-
-  const onChangeTitle = (title: string) => {
-    setTitle(title);
-  };
-
-  const onChangeDesc = (descripsion: string) => {
-    setDescripsion(descripsion);
-  };
-
-  const onChangeIsDone = () => {
-    setIsDone(!isDone);
-  };
-
-  const onSubmit = async () => {
-    setLoading(true);
-    if (data.id === "New") {
-      await addTodo({
-        id: data.id,
-        title,
-        descripsion,
-        isDone,
-      });
-    }
-    await updateTodo({
-      id: data.id,
-      title,
-      descripsion,
-      isDone,
-    });
-    setLoading(false);
-  };
-
-  return (
-    <>
-      <TextInput
-        value={title}
-        onChangeText={onChangeTitle}
-        mode="outlined"
-        label="Title"
-      />
-
-      <TextInput
-        value={descripsion}
-        onChangeText={onChangeDesc}
-        mode="outlined"
-        label="Desc"
-      />
-
-      {/* <View> */}
-
-      {data.id !== "New" && (
-        <Card
-          mode="outlined"
-          style={{
-            marginTop: 8,
-          }}
-          onPress={onChangeIsDone}
-        >
-          <Card.Content style={styles.containerRow}>
-            <Text style={styles.title}>Done</Text>
-            <Checkbox
-              status={isDone ? "checked" : "unchecked"}
-              onPress={onChangeIsDone}
-            />
-          </Card.Content>
-        </Card>
-      )}
-      <Button
-        mode="contained"
-        style={{
-          marginTop: 40,
-        }}
-        onPress={onSubmit}
-      >
-        {buttonTitle}
-      </Button>
-    </>
-  );
-};
 
 const styles = StyleSheet.create({
   container: {
@@ -146,15 +67,5 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingHorizontal: 16,
     gap: 8,
-  },
-  containerRow: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 18,
-    // fontWeight: "500",
   },
 });

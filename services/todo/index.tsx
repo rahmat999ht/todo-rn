@@ -34,8 +34,9 @@ export const todoCollection = collection(db, "todos").withConverter(
 
 export const addTodo = async (todo: ITodo) => {
   try {
-    await addDoc(todoCollection, todo);
+    const newTodo = await addDoc(todoCollection, todo);
     console.log("Add Todo", todo);
+    return newTodo;
   } catch (e) {
     console.error("Error adding document: ", e);
   }
@@ -43,8 +44,9 @@ export const addTodo = async (todo: ITodo) => {
 
 export const updateTodo = async ({ id, ...todo }: ITodo) => {
   try {
-    await updateDoc(doc(db, "todos", id), todo);
+    const updateTodo = await updateDoc(doc(db, "todos", id), todo);
     console.log("Update Todo", todo);
+    return updateTodo;
   } catch (e) {
     console.error("Error adding document: ", e);
   }
@@ -94,15 +96,16 @@ export function useGetAllTodo(isDoneView: boolean) {
   };
 }
 
-export function useGetTodo(id: string) {
-  const [data, setData] = useState<ITodo>({
-    id,
-    descripsion: "",
-    isDone: false,
-    title: "",
-  });
-  const [isLoading, setLoading] = useState(false);
+export const defaultData : ITodo = {
+  id: "New",
+  descripsion: "",
+  isDone: false,
+  title: "",
+};
 
+export function useGetTodo(id: string) {
+  const [data, setData] = useState<ITodo>(defaultData);
+  const [isLoading, setLoading] = useState(false);
 
   useEffect(() => {
     if (id !== "New") {
@@ -119,6 +122,5 @@ export function useGetTodo(id: string) {
     setData,
     isLoading,
     setLoading,
-
   };
 }

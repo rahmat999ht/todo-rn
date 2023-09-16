@@ -67,7 +67,7 @@ function RootLayoutNav() {
             name="modal"
             options={{
               presentation: "modal",
-              title: "Create Todo",
+              title: "Todo New",
             }}
           />
         </Stack>
@@ -84,6 +84,9 @@ function RootLayoutNav() {
     </PaperProvider>
   );
 }
+
+
+
 
 const styles = StyleSheet.create({
   fab: {
