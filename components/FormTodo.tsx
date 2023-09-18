@@ -10,6 +10,7 @@ import {
 } from "react-native-paper";
 import { Text, View } from "./Themed";
 import { addTodo, defaultData, updateTodo } from "../services/todo";
+import { router } from "expo-router";
 
 export const FormTodo = ({
   data,
@@ -71,6 +72,7 @@ export const FormTodo = ({
       onToggleSnackBar();
       setData(todo);
       setLoading(false);
+      router.back()
     }
   };
 
