@@ -1,5 +1,10 @@
 import { StyleSheet } from "react-native";
-import { IconButton, MD3Colors, RadioButton } from "react-native-paper";
+import {
+  Checkbox,
+  IconButton,
+  MD3Colors,
+  RadioButton,
+} from "react-native-paper";
 import { View, Text } from "./Themed";
 import { ITodo } from "../types/Todo";
 import { VerticalDivider } from "./Divider";
@@ -16,12 +21,11 @@ export const Todo = ({ todo, removeTodo, checkedTodo }: TodoProps) => {
     <View style={style.container}>
       {/* Content */}
       <View style={style.content}>
-        <RadioButton
+        <Checkbox
           onPress={() => {
             checkedTodo(todo);
           }}
           status={todo.isDone ? "checked" : "unchecked"}
-          value={todo.id}
         />
         <View>
           <Text style={style.title}>{todo.title}</Text>
