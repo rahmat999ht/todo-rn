@@ -35,6 +35,7 @@ export const Todo = ({ todo, removeTodo, checkedTodo }: TodoProps) => {
       {/* End Content */}
 
       {/* Action */}
+      
       <View style={style.action}>
         <Link
           href={{
