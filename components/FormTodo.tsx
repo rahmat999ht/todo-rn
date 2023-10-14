@@ -50,7 +50,7 @@ export const FormTodo = ({
       isDone,
     };
     if (
-        todo.title === defaultData.title &&
+        todo.title === defaultData.title ||
         todo.descripsion === defaultData.descripsion
     ) {
       if (todo.title === defaultData.title) {
