@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1032606244343",
+    "firebase_url": "https://skripsi-92779-default-rtdb.firebaseio.com",
+    "project_id": "skripsi-92779",
+    "storage_bucket": "skripsi-92779.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1032606244343:android:33a9d1b36dc004c3aae2f2",
+        "android_client_info": {
+          "package_name": "com.todo.flutter.todo_flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1032606244343-gann6s2qi99it95ep4jdp5tg0opptqdi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.todo.flutter.todo_flutter",
+            "certificate_hash": "60d8138a29bb8a7d4a7c43ab6f89e2dd6833ab05"
+          }
+        },
+        {
+          "client_id": "1032606244343-a7o5f0o3o2gig0nv7ovfrftb96mruhci.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4typJ3xYxzUhZ13FprJugTD65lj-qrxY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1032606244343-a7o5f0o3o2gig0nv7ovfrftb96mruhci.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1032606244343-cvgru98e8rannrib833kn3cqkresasvi.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.fs"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
