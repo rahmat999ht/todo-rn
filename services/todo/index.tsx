@@ -1,57 +1,35 @@
 import { useEffect, useState } from "react";
 import { ITodo } from "../../types/Todo";
-import { db } from "../firebaseConfig";
+// import { db } from "../firebaseConfig";
+import firestore from "@react-native-firebase/firestore"
 
-import {
-  collection,
-  addDoc,
-  deleteDoc,
-  //   getDocs,
-  doc,
-  where,
-  updateDoc,
-  onSnapshot,
-  getDoc,
-  query,
-} from "firebase/firestore";
+// const converterTodo = {
+//   toFirestore({ id, ...todo }: ITodo) {
+//     return todo;
+//   },
+//   fromFirestore(snapshot: { data: () => any; id: any }): ITodo {
+//     const data = snapshot.data();
+//     return {
+//       userId: data["userId"],
+//       descripsion: data["descripsion"],
+//       isDone: data["isDone"],
+//       title: data["title"],
+//       id: snapshot.id,
+//     };
+//   },
+// };
 
-const converterTodo = {
-  toFirestore({ id, ...todo }: ITodo) {
-    return todo;
-  },
-  fromFirestore(snapshot: { data: () => any; id: any }): ITodo {
-    const data = snapshot.data();
-    return {
-      userId: data["userId"],
-      descripsion: data["descripsion"],
-      isDone: data["isDone"],
-      title: data["title"],
-      id: snapshot.id,
-    };
-  },
-};
-
-export const todoCollection = collection(db, "todos").withConverter(
-  converterTodo
-);
+export const todoCollection = firestore().collection("todos");
 
 export const doneQuery = (id: string) =>
-  query(
-    collection(db, "todos").withConverter(converterTodo),
-    where("isDone", "==", true),
-    where("userId", "==", id)
-  );
+  todoCollection.where("userId", "==", id).where("isDone", "==", true);
 
 export const todoQuery = (id: string) =>
-  query(
-    collection(db, "todos").withConverter(converterTodo),
-    where("isDone", "==", false),
-    where("userId", "==", id)
-  );
+  todoCollection.where("userId", "==", id).where("isDone", "==", false);
 
 export const addTodo = async (todo: ITodo) => {
   try {
-    const newTodo = await addDoc(todoCollection, todo);
+    const newTodo = await todoCollection.add(todo);
     console.log("Add Todo", todo);
     return newTodo;
   } catch (e) {
@@ -61,7 +39,7 @@ export const addTodo = async (todo: ITodo) => {
 
 export const updateTodo = async ({ id, ...todo }: ITodo) => {
   try {
-    const updateTodo = await updateDoc(doc(db, "todos", id), todo);
+    const updateTodo = await todoCollection.doc(id).set(todo);
     console.log("Update Todo", todo);
     return updateTodo;
   } catch (e) {
@@ -71,19 +49,28 @@ export const updateTodo = async ({ id, ...todo }: ITodo) => {
 
 export const getTodo = async (id: string) => {
   try {
-    const todo = await getDoc(
-      doc(db, "todos", id).withConverter(converterTodo)
-    );
+    const todo = await todoCollection.doc(id).get();
+    const data = todo.data();
+    if (todo.exists && data) {
+      return {
+        userId: data["userId"],
+        descripsion: data["descripsion"],
+        isDone: data["isDone"],
+        title: data["title"],
+        id: todo.id,
+      } satisfies ITodo;
+    }
     console.log("Update Todo", todo);
-    return todo;
+    return defaultData;
   } catch (e) {
     console.error("Error adding document: ", e);
+    return defaultData;
   }
 };
 
 export const deleteTodo = async ({ id }: ITodo) => {
   try {
-    await deleteDoc(doc(db, "todos", id));
+    await todoCollection.doc(id).delete();
     console.log("Delete Todo", id);
   } catch (e) {
     console.error("Error adding document: ", e);
@@ -98,28 +85,52 @@ export function useGetAllTodo(isDoneView: boolean) {
     setLoading(true);
 
     if (isDoneView) {
-      const unSubTodo = onSnapshot(
-        doneQuery("dicky46darmawan@gmail.com"),
-        (doc) => {
-          const todos = doc.docs.map((v) => v.data());
+       doneQuery("dicky46darmawan@gmail.com").onSnapshot({
+        next(doc) {
+          const todos = doc.docs.map((snapshot) => {
+            const data = snapshot.data();
+            return {
+              userId: data["userId"],
+              descripsion: data["descripsion"],
+              isDone: data["isDone"],
+              title: data["title"],
+              id: snapshot.id,
+            };
+          }) satisfies ITodo[];
           setData(todos);
           setLoading(false);
-        }
-      );
+        },
+        error(error) {
+          console.log("error isDoneView", error);
+          setLoading(false);
+        },
+      });
 
-      return unSubTodo;
+      // return () => unSubTodo();
+    } else {
+      todoQuery("dicky46darmawan@gmail.com").onSnapshot({
+        next(doc) {
+          const todos = doc.docs.map((snapshot) => {
+            const data = snapshot.data();
+            return {
+              userId: data["userId"],
+              descripsion: data["descripsion"],
+              isDone: data["isDone"],
+              title: data["title"],
+              id: snapshot.id,
+            };
+          }) satisfies ITodo[];
+          setData(todos);
+          setLoading(false);
+        },
+        error(error) {
+          console.log("error isDoneView", error);
+          setLoading(false);
+        },
+      });
+
+      // return () => unSubTodo();
     }
-
-    const unSubTodo = onSnapshot(
-      todoQuery("dicky46darmawan@gmail.com"),
-      (doc) => {
-        const todos = doc.docs.map((v) => v.data());
-        setData(todos);
-        setLoading(false);
-      }
-    );
-
-    return unSubTodo;
   }, []);
 
   return {
@@ -147,7 +158,7 @@ export function useGetTodo(id: string) {
     if (id !== "New") {
       setLoading(true);
       getTodo(id).then((todo) => {
-        setData((value) => todo?.data() ?? value);
+        setData((value) => todo as ITodo);
         setLoading(false);
       });
     }

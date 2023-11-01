@@ -81,7 +81,7 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.todorn"
+    namespace 'com.dicky93.todorn'
     defaultConfig {
         applicationId 'com.dicky93.todorn'
         minSdkVersion rootProject.ext.minSdkVersion
