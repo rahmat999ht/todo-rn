@@ -1,23 +1,8 @@
 import { useEffect, useState } from "react";
 import { ITodo } from "../../types/Todo";
 // import { db } from "../firebaseConfig";
-import firestore from "@react-native-firebase/firestore"
-
-// const converterTodo = {
-//   toFirestore({ id, ...todo }: ITodo) {
-//     return todo;
-//   },
-//   fromFirestore(snapshot: { data: () => any; id: any }): ITodo {
-//     const data = snapshot.data();
-//     return {
-//       userId: data["userId"],
-//       descripsion: data["descripsion"],
-//       isDone: data["isDone"],
-//       title: data["title"],
-//       id: snapshot.id,
-//     };
-//   },
-// };
+import firestore from "@react-native-firebase/firestore";
+import { useAuthContext } from "../../components/AuthProvider";
 
 export const todoCollection = firestore().collection("todos");
 
@@ -80,12 +65,13 @@ export const deleteTodo = async ({ id }: ITodo) => {
 export function useGetAllTodo(isDoneView: boolean) {
   const [data, setData] = useState<ITodo[]>([]);
   const [isLoading, setLoading] = useState(true);
+  const { user } = useAuthContext();
 
   useEffect(() => {
     setLoading(true);
 
     if (isDoneView) {
-       doneQuery("dicky46darmawan@gmail.com").onSnapshot({
+      doneQuery(user?.email ?? "").onSnapshot({
         next(doc) {
           const todos = doc.docs.map((snapshot) => {
             const data = snapshot.data();
@@ -108,7 +94,7 @@ export function useGetAllTodo(isDoneView: boolean) {
 
       // return () => unSubTodo();
     } else {
-      todoQuery("dicky46darmawan@gmail.com").onSnapshot({
+      todoQuery(user?.email ?? "").onSnapshot({
         next(doc) {
           const todos = doc.docs.map((snapshot) => {
             const data = snapshot.data();
@@ -129,7 +115,6 @@ export function useGetAllTodo(isDoneView: boolean) {
         },
       });
 
-      // return () => unSubTodo();
     }
   }, []);
 

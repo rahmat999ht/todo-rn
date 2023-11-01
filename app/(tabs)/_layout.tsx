@@ -1,14 +1,26 @@
 import { Tabs } from "expo-router";
 
 import { MaterialIcons } from "@expo/vector-icons";
-import { MD3Colors } from "react-native-paper";
+import { IconButton, MD3Colors } from "react-native-paper";
+import { useAuthContext } from "../../components/AuthProvider";
 
 export default function TabLayout() {
+  const { logout } = useAuthContext();
   return (
     <Tabs
       screenOptions={{
         headerStyle: {
           backgroundColor: MD3Colors.primary60,
+        },
+        headerRight: () => {
+          return (
+            <IconButton
+              icon="logout"
+              mode="contained-tonal"
+              size={20}
+              onPress={logout}
+            />
+          );
         },
         tabBarActiveTintColor: MD3Colors.primary60,
       }}
