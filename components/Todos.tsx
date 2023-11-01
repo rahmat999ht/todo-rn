@@ -1,13 +1,12 @@
 import React, { useRef } from "react";
 import { LayoutAnimation } from "react-native";
-import { ActivityIndicator, MD3Colors } from "react-native-paper";
+import { ActivityIndicator, } from "react-native-paper";
 import { FlashList } from "@shopify/flash-list";
 import { Todo } from "./Todo";
 import { ITodo } from "../types/Todo";
 import { Divider } from "./Divider";
 import { Text, View } from "./Themed";
 import { deleteTodo, updateTodo, useGetAllTodo } from "../services/todo";
-import { MaterialIcons } from "@expo/vector-icons";
 
 export const ListTodo = ({ isDoneView }: { isDoneView: boolean }) => {
   const { data, setData, isLoading, isEmpty } = useGetAllTodo(isDoneView);

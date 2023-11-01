@@ -8,9 +8,11 @@ import {
   deleteDoc,
   //   getDocs,
   doc,
+  where,
   updateDoc,
   onSnapshot,
   getDoc,
+  query,
 } from "firebase/firestore";
 
 const converterTodo = {
@@ -20,6 +22,7 @@ const converterTodo = {
   fromFirestore(snapshot: { data: () => any; id: any }): ITodo {
     const data = snapshot.data();
     return {
+      userId: data["userId"],
       descripsion: data["descripsion"],
       isDone: data["isDone"],
       title: data["title"],
@@ -31,6 +34,20 @@ const converterTodo = {
 export const todoCollection = collection(db, "todos").withConverter(
   converterTodo
 );
+
+export const doneQuery = (id: string) =>
+  query(
+    collection(db, "todos").withConverter(converterTodo),
+    where("isDone", "==", true),
+    where("userId", "==", id)
+  );
+
+export const todoQuery = (id: string) =>
+  query(
+    collection(db, "todos").withConverter(converterTodo),
+    where("isDone", "==", false),
+    where("userId", "==", id)
+  );
 
 export const addTodo = async (todo: ITodo) => {
   try {
@@ -57,7 +74,7 @@ export const getTodo = async (id: string) => {
     const todo = await getDoc(
       doc(db, "todos", id).withConverter(converterTodo)
     );
-    // console.log("Update Todo", todo);
+    console.log("Update Todo", todo);
     return todo;
   } catch (e) {
     console.error("Error adding document: ", e);
@@ -79,12 +96,30 @@ export function useGetAllTodo(isDoneView: boolean) {
 
   useEffect(() => {
     setLoading(true);
-    onSnapshot(todoCollection, (doc) => {
-      const todos = doc.docs.map((v) => v.data());
 
-      setData(isDoneView ? todos.filter((v) => v.isDone === true) : todos);
-      setLoading(false);
-    });
+    if (isDoneView) {
+      const unSubTodo = onSnapshot(
+        doneQuery("dicky46darmawan@gmail.com"),
+        (doc) => {
+          const todos = doc.docs.map((v) => v.data());
+          setData(todos);
+          setLoading(false);
+        }
+      );
+
+      return unSubTodo;
+    }
+
+    const unSubTodo = onSnapshot(
+      todoQuery("dicky46darmawan@gmail.com"),
+      (doc) => {
+        const todos = doc.docs.map((v) => v.data());
+        setData(todos);
+        setLoading(false);
+      }
+    );
+
+    return unSubTodo;
   }, []);
 
   return {
@@ -96,9 +131,10 @@ export function useGetAllTodo(isDoneView: boolean) {
   };
 }
 
-export const defaultData : ITodo = {
+export const defaultData: ITodo = {
   id: "New",
   descripsion: "",
+  userId: "",
   isDone: false,
   title: "",
 };
