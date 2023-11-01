@@ -10,7 +10,7 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerStyle: {
-          backgroundColor: MD3Colors.primary60,
+          backgroundColor: MD3Colors.primary40,
         },
         headerRight: () => {
           return (
@@ -22,7 +22,7 @@ export default function TabLayout() {
             />
           );
         },
-        tabBarActiveTintColor: MD3Colors.primary60,
+        tabBarActiveTintColor: MD3Colors.primary40,
       }}
     >
       <Tabs.Screen
