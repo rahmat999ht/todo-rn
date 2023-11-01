@@ -11,6 +11,7 @@ import {
 import { Text, View } from "./Themed";
 import { addTodo, defaultData, updateTodo } from "../services/todo";
 import { router } from "expo-router";
+import { useAuthContext } from "./AuthProvider";
 
 export const FormTodo = ({
   data,
@@ -24,6 +25,7 @@ export const FormTodo = ({
   onToggleSnackBar: () => void;
 }) => {
   const isNew = data.id === "New";
+  const { user } = useAuthContext();
   const [title, setTitle] = useState(data.title);
   const [descripsion, setDescripsion] = useState(data.descripsion);
   const [isDone, setIsDone] = useState(data.isDone);
@@ -47,11 +49,12 @@ export const FormTodo = ({
       id: data.id,
       title,
       descripsion,
+      userId: user?.email ?? "-",
       isDone,
     };
     if (
-        todo.title === defaultData.title ||
-        todo.descripsion === defaultData.descripsion
+      todo.title === defaultData.title ||
+      todo.descripsion === defaultData.descripsion
     ) {
       if (todo.title === defaultData.title) {
         setIsErrorTitle(true);
@@ -72,7 +75,7 @@ export const FormTodo = ({
       onToggleSnackBar();
       setData(todo);
       setLoading(false);
-      router.back()
+      router.back();
     }
   };
 
@@ -120,9 +123,12 @@ export const FormTodo = ({
         style={{
           marginTop: 40,
         }}
+        // contentStyle={{
+        //   padding: 5,
+        // }}
         onPress={onSubmit}
       >
-        {isNew ? "Add" : "Update"}
+        {isNew ? "Create" : "Update"}
       </Button>
     </View>
   );

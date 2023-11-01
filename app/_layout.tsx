@@ -14,7 +14,6 @@ import {
   AuthenticatedUserProvider,
   useAuthContext,
 } from "../components/AuthProvider";
-import auth from "@react-native-firebase/auth";
 import { View } from "../components/Themed";
 
 export {
@@ -87,10 +86,10 @@ function RootLayoutNav() {
         <Button
           onPress={login}
           style={styles.button}
-          mode="contained-tonal"
           contentStyle={{
-            width: "100%",
+            padding: 5,
           }}
+          mode="contained-tonal"
           icon="login"
         >
           <Text style={styles.buttonText}>Login</Text>
@@ -129,9 +128,6 @@ const styles = StyleSheet.create({
   buttonText: { fontSize: 16, fontWeight: "900" },
   button: {
     width: "100%",
-    height: 48,
-    justifyContent: "center",
-    alignItems: "center",
   },
   loginView: {
     flex: 1,
