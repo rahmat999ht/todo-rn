@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { ITodo } from "../types/Todo";
 import { StyleSheet } from "react-native";
 import {
@@ -12,6 +12,7 @@ import { Text, View } from "./Themed";
 import { addTodo, defaultData, updateTodo } from "../services/todo";
 import { router } from "expo-router";
 import { useAuthContext } from "./AuthProvider";
+import { firebase } from "@react-native-firebase/firestore";
 
 export const FormTodo = ({
   data,
@@ -28,44 +29,60 @@ export const FormTodo = ({
   const { user } = useAuthContext();
   const [title, setTitle] = useState(data.title);
   const [descripsion, setDescripsion] = useState(data.descripsion);
+  const [date, setDate] = useState(data.dateTime?.toDate() ?? new Date());
+  const [time, setTime] = useState(data.dateTime?.toDate() ?? new Date());
   const [isDone, setIsDone] = useState(data.isDone);
-  const [isErrorTitle, setIsErrorTitle] = useState(false);
-  const [isErrorDesc, setIsErrorDesc] = useState(false);
-
-  const onChangeTitle = (title: string) => {
-    setTitle(title);
-  };
-
-  const onChangeDesc = (descripsion: string) => {
-    setDescripsion(descripsion);
-  };
+  const [isError, setIsError] = useState({
+    title: false,
+    descripsion: false,
+  });
 
   const onChangeIsDone = () => {
     setIsDone(!isDone);
   };
 
   const onSubmit = async () => {
+    const newDate = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      time.getHours(),
+      time.getMinutes(),
+      time.getSeconds()
+    );
+
+    const dateTime = firebase.firestore.Timestamp.fromDate(newDate);
+
     const todo: ITodo = {
       id: data.id,
-      title,
-      descripsion,
-      userId: user?.email ?? "-",
-      isDone,
+      title: title,
+      descripsion: descripsion,
+      dateTime: dateTime,
+      userId: user?.uid ?? "-",
+      isDone: isDone,
     };
     if (
       todo.title === defaultData.title ||
       todo.descripsion === defaultData.descripsion
     ) {
       if (todo.title === defaultData.title) {
-        setIsErrorTitle(true);
+        setIsError((v) => ({
+          ...v,
+          title: true,
+        }));
       }
       if (todo.descripsion === defaultData.descripsion) {
-        setIsErrorDesc(true);
+        setIsError((v) => ({
+          ...v,
+          descripsion: true,
+        }));
       }
       return;
     } else {
-      setIsErrorDesc(false);
-      setIsErrorTitle(false);
+      setIsError((v) => ({
+        title: false,
+        descripsion: false,
+      }));
       setLoading(true);
       if (data.id === "New") {
         await addTodo(todo);
@@ -83,22 +100,26 @@ export const FormTodo = ({
     <View>
       <TextInput
         value={title}
-        onChangeText={onChangeTitle}
+        onChangeText={setTitle}
         mode="outlined"
         label="Title"
       />
-      {isErrorTitle && (
+
+      {isError.title && (
         <Text style={styles.subTitle}>Title Tidak Boleh Kosong</Text>
       )}
-
       <TextInput
         value={descripsion}
-        onChangeText={onChangeDesc}
+        onChangeText={setDescripsion}
         mode="outlined"
         label="Desc"
       />
 
-      {isErrorDesc && (
+      <InputDate label="Time" mode="time" date={time} setDate={setTime} />
+
+      <InputDate label="Date" mode="date" date={date} setDate={setDate} />
+
+      {isError.descripsion && (
         <Text style={styles.subTitle}>Descripsion Tidak Boleh Kosong</Text>
       )}
       {data.id !== "New" && (
@@ -150,3 +171,66 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
 });
+
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+
+export const InputDate = ({
+  date,
+  setDate,
+  mode,
+  label,
+}: {
+  date: Date;
+  mode: "date" | "time";
+  label: string;
+  setDate: React.Dispatch<React.SetStateAction<Date>>;
+}) => {
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (date: Date) => {
+    setDate(date);
+    hideDatePicker();
+  };
+
+  const value =
+    "date" === mode
+      ? date.toLocaleDateString("id-ID", {
+          year: "numeric",
+          month: "long",
+          day: "2-digit",
+        })
+      : date
+          .toLocaleDateString("id-ID", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+          .split(", ")[1]
+          .replace(".", " : ");
+
+  return (
+    <>
+      <TextInput
+        value={value.toString()}
+        mode="outlined"
+        onPressIn={showDatePicker}
+        label={label}
+        editable={false}
+      />
+
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode={mode}
+        onConfirm={handleConfirm}
+        onCancel={hideDatePicker}
+      />
+    </>
+  );
+};

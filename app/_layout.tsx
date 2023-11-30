@@ -7,7 +7,12 @@ import {
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack, router, usePathname } from "expo-router";
 import { useEffect } from "react";
-import { useColorScheme, StyleSheet } from "react-native";
+import {
+  useColorScheme,
+  StyleSheet,
+  PermissionsAndroid,
+  Platform,
+} from "react-native";
 import { FAB, PaperProvider, Text, Button } from "react-native-paper";
 import React from "react";
 import {
@@ -15,6 +20,23 @@ import {
   useAuthContext,
 } from "../components/AuthProvider";
 import { View } from "../components/Themed";
+import messaging from "@react-native-firebase/messaging";
+
+messaging().setBackgroundMessageHandler(async (remoteMessage) => {
+  console.log("Message handled in the background!", remoteMessage);
+});
+
+function requestAndroidPermission() {
+  PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+}
+
+async function requestUserPermission() {
+  const authorizationStatus = await messaging().requestPermission();
+
+  if (authorizationStatus) {
+    console.log("Permission status:", authorizationStatus.toString());
+  }
+}
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -48,6 +70,14 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
+  if (Platform.OS == "android") {
+    requestAndroidPermission();
+  }
+
+  useEffect(() => {
+    requestUserPermission();
+  }, []);
+
   if (!loaded) {
     return null;
   }
@@ -78,6 +108,12 @@ GoogleSignin.configure({
 function RootLayoutNav() {
   const pathName = usePathname();
   const { user, login } = useAuthContext();
+
+  useEffect(() => {
+    if (user && user.email) {
+      messaging().subscribeToTopic(user.uid);
+    }
+  }, []);
 
   if (!user) {
     return (
