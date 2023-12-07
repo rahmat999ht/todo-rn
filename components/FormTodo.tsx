@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ITodo } from "../types/Todo";
-import { StyleSheet } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
 import {
   Button,
   Card,
@@ -212,18 +212,20 @@ export const InputDate = ({
             hour: "2-digit",
             minute: "2-digit",
           })
-          .split(", ")[1]
+          .split(" ")[1]
+          .trim()
           .replace(".", " : ");
 
   return (
-    <>
-      <TextInput
-        value={value.toString()}
-        mode="outlined"
-        onPressIn={showDatePicker}
-        label={label}
-        editable={false}
-      />
+    <View>
+      <Pressable onPress={showDatePicker}>
+        <TextInput
+          value={value}
+          mode="outlined"
+          label={label}
+          editable={false}
+        />
+      </Pressable>
 
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
@@ -231,6 +233,6 @@ export const InputDate = ({
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
       />
-    </>
+    </View>
   );
 };
