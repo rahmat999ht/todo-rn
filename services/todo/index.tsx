@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ITodo } from "../../types/Todo";
 // import { db } from "../firebaseConfig";
 import firestore from "@react-native-firebase/firestore";
+import { firebase } from "@react-native-firebase/firestore";
 import { useAuthContext } from "../../components/AuthProvider";
 
 export const todoCollection = firestore().collection("todos");
@@ -42,6 +43,7 @@ export const getTodo = async (id: string) => {
         descripsion: data["descripsion"],
         isDone: data["isDone"],
         title: data["title"],
+        dateTime : data["dateTime"],
         id: todo.id,
       } satisfies ITodo;
     }
@@ -71,7 +73,7 @@ export function useGetAllTodo(isDoneView: boolean) {
     setLoading(true);
 
     if (isDoneView) {
-      doneQuery(user?.email ?? "").onSnapshot({
+      doneQuery(user?.uid ?? "").onSnapshot({
         next(doc) {
           const todos = doc.docs.map((snapshot) => {
             const data = snapshot.data();
@@ -80,6 +82,7 @@ export function useGetAllTodo(isDoneView: boolean) {
               descripsion: data["descripsion"],
               isDone: data["isDone"],
               title: data["title"],
+              dateTime : data["dateTime"],
               id: snapshot.id,
             };
           }) satisfies ITodo[];
@@ -94,7 +97,7 @@ export function useGetAllTodo(isDoneView: boolean) {
 
       // return () => unSubTodo();
     } else {
-      todoQuery(user?.email ?? "").onSnapshot({
+      todoQuery(user?.uid ?? "").onSnapshot({
         next(doc) {
           const todos = doc.docs.map((snapshot) => {
             const data = snapshot.data();
@@ -103,6 +106,7 @@ export function useGetAllTodo(isDoneView: boolean) {
               descripsion: data["descripsion"],
               isDone: data["isDone"],
               title: data["title"],
+              dateTime : data["dateTime"] ,
               id: snapshot.id,
             };
           }) satisfies ITodo[];
@@ -131,6 +135,7 @@ export const defaultData: ITodo = {
   id: "New",
   descripsion: "",
   userId: "",
+  dateTime : firebase.firestore.Timestamp.now(),
   isDone: false,
   title: "",
 };
